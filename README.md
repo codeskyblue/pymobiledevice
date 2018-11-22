@@ -4,12 +4,15 @@ pymobiledevice is a cross-platform implementation of the mobiledevice library
 that talks the protocols to support iPhone®, iPod Touch®, iPad® and Apple TV® devices.
 
 
+## Installation
+```bash
+pip install -e .
+```
+
 ## Requirements
-
-Python 2.7
-M2Crypto
-Construct
-
+- Python 2.7
+- M2Crypto
+- Construct
 
 ## Lockdownd.py [com.apple.lockownd]
 
@@ -26,13 +29,27 @@ This service is responsible for things such as copying music and photos. AFC Cli
 are allowed accessing to a “jailed” or limited area of the device filesystem. Actually, AFC clients can 
 only access certain files, namely those located in the Media folder.
 
-
 ## house_arrest.py [com.apple.mobile.house_arrest]
 
 This service allows accessing to AppStore applications folders and their content.
 In other words, by using an AFC client, a user/attacker can download the application resources and data. 
 It also includes the “default preferences” file where credentials are sometimes stored. 
 
+**Example code**
+
+```python
+from pymobiledevice import lockdown
+from pymobiledevice import apps
+from pymobiledevice.afc import AFCShell
+
+ldc = lockdown.LockdownClient()
+myafc = apps.house_arrest(ldc, "--your-app-bundle-id--")
+
+AFCShell(client=myafc).do_pull("Documents/log")
+
+myafc.stop_session()
+ldc.stop_session()
+```
 
 ## installation_proxy.py [com.apple.mobile.installation_proxy]
 

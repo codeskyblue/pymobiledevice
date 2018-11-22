@@ -1,2 +1,4 @@
 M2Crypto
-construct
+
+pyasn1
+construct==2.5.3

@@ -9,4 +9,4 @@ version.txt
 debug/
 # Mac系统自动生成的文件
 *.DS_Store
-
+*.egg-info/
