@@ -37,6 +37,8 @@ It also includes the “default preferences” file where credentials are someti
 
 **Example code**
 
+Pull file or directory
+
 ```python
 from pymobiledevice import lockdown
 from pymobiledevice import apps
@@ -47,6 +49,10 @@ myafc = apps.house_arrest(ldc, "--your-app-bundle-id--")
 
 AFCShell(client=myafc).do_pull("Documents/log")
 
+# Remove file
+myafc.file_remove("/Documents/log/log.txt")
+
+# Close session
 myafc.stop_session()
 ```
 
@@ -93,5 +99,16 @@ All the files returned by the iPhone are stored in clear text in a gziped CPIO a
 Starting iOS 5, apple added a remote virtual interface (RVI) facility that allows mirroring networks trafic from an iOS device. 
 On Mac OSX the virtual interface can be enabled with the rvictl command. This script allows to use this service on other systems.
 
+## idb.py
+Port of android adb tool
 
+```bash
+$ ./idb.py -u $UDID -b $BUNDLE_ID list
+log
+app.txt
 
+$ ./idb.py -u $UDID -b $BUNDLE_ID rm app.txt
+```
+
+## References
+- [iOS 测试利器：idb](https://cloud.tencent.com/developer/article/1004974)
