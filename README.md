@@ -42,16 +42,15 @@ from pymobiledevice import lockdown
 from pymobiledevice import apps
 from pymobiledevice.afc import AFCShell
 
-ldc = lockdown.LockdownClient()
+ldc = lockdown.LockdownClient(udid=None) # only one device
 myafc = apps.house_arrest(ldc, "--your-app-bundle-id--")
 
 AFCShell(client=myafc).do_pull("Documents/log")
 
 myafc.stop_session()
-ldc.stop_session()
 ```
 
-## installation_proxy.py [com.apple.mobile.installation_proxy]
+## installation\_proxy.py [com.apple.mobile.installation\_proxy]
 
 The installation proxy manages applications on a device. 
 It allows execution of the following commands:
@@ -65,7 +64,7 @@ It allows execution of the following commands:
 Those services are used by iTunes to backup the device. 
 
 
-## diagnostics_relay.py [com.apple.mobile.diagnostics_relay]
+## `diagnostics_relay.py` [com.apple.mobile.diagnostics_relay]
 
 The diagnostic relay allows requesting iOS diagnostic information. 
 The service handles the following actions: 
