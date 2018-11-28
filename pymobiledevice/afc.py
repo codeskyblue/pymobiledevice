@@ -284,6 +284,7 @@ class AFCClient(object):
         MAXIMUM_WRITE_SIZE = 1 << 15
         hh = struct.pack("<Q", handle)
         segments = len(data) / MAXIMUM_WRITE_SIZE
+        s = None # status
         try:
             for i in xrange(segments):
                 self.dispatch_packet(AFC_OP_WRITE,
