@@ -14,6 +14,26 @@ pip install -e .
 - M2Crypto
 - Construct
 
+## Usage
+```python
+import pymobiledevice as pm
+
+d = pm.IDevice()
+
+# remove
+d.app_remove("com.apple.demo", "/Documents/log/log.txt")
+d.app_remove("com.apple.demo", "/Documents/log/*.txt", glob=True)
+d.app_remove("com.apple.demo", "/Documents/log", recursive=True)
+
+# pull
+d.app_pull("com.apple.demo", "/Documents/log", "localdir/")
+d.app_pull("com.apple.demo", "/Documents/log/*.txt", "localdir/", glob=True)
+
+# listdir
+d.app_listdir("com.apple.demo", "/Documents") # output: ["log"]
+d.app_listdir("com.apple.demo", "/Documents", absolute=True) # output: ["/Documents/log"]
+```
+
 ## Lockdownd.py [com.apple.lockownd]
 
 This script can be used in order to pair with the device & starts other services.

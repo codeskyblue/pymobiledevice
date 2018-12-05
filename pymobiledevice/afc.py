@@ -22,6 +22,7 @@
 #
 #
 
+from __future__ import print_function
 
 from construct.core import Struct
 from construct.lib.container import Container
@@ -30,7 +31,7 @@ from pymobiledevice.lockdown import LockdownClient
 import struct
 from cmd import Cmd
 import os
-from util import hexdump, parsePlist
+from pymobiledevice.util import hexdump, parsePlist
 from pprint import pprint
 import plistlib
 import posixpath
@@ -131,7 +132,7 @@ class AFCClient(object):
 
 
     def stop_session(self):
-        print "Disconecting..."
+        print("Disconecting...")
         self.service.close()
 
 
@@ -159,7 +160,7 @@ class AFCClient(object):
             data = self.service.recv_exact(length)
             if res.operation == AFC_OP_STATUS:
                 if length != 8:
-                    print "Status length != 8"
+                    print("Status length != 8")
                 status = struct.unpack("<Q", data[:8])[0]
             elif res.operation != AFC_OP_DATA:
                 pass#print "error ?", res
@@ -208,7 +209,7 @@ class AFCClient(object):
     def remove_directory(self, dirname):
         info = self.get_file_info(dirname)
         if not info or info.get("st_ifmt") != "S_IFDIR":
-            print "remove_directory: %s not S_IFDIR" % dirname
+            print("remove_directory: %s not S_IFDIR" % dirname)
             return
 
         for d in self.read_directory(dirname):
@@ -219,7 +220,7 @@ class AFCClient(object):
             if info.get("st_ifmt") == "S_IFDIR":
                 self.remove_directory(dirname + "/" + d)
             else:
-                print dirname + "/" + d
+                print(dirname + "/" + d)
                 self.file_remove(dirname + "/" + d)
         assert len(self.read_directory(dirname)) == 2 #.. et .
         return self.file_remove(dirname)
@@ -233,7 +234,7 @@ class AFCClient(object):
 
     def make_link(self, target, linkname, type=AFC_SYMLINK):
         status, data = self.do_operation(AFC_OP_MAKE_LINK, struct.pack("<Q", type) + target + "\x00" + linkname + "\x00")
-        print "make_link", status
+        print("make_link", status)
         return status
 
 
@@ -292,7 +293,7 @@ class AFCClient(object):
                                      this_length=48)
                 s, d = self.receive_data()
                 if s != AFC_E_SUCCESS:
-                    print "file_write error %d" % s
+                    print("file_write error %d" % s)
                     break
             if len(data) % MAXIMUM_WRITE_SIZE:
                 self.dispatch_packet(AFC_OP_WRITE,
@@ -313,10 +314,10 @@ class AFCClient(object):
                 filename =  info['LinkTarget']
 
             if info['st_ifmt'] == 'S_IFDIR':
-                print "%s is directory..." % filename
+                print("%s is directory..." % filename)
                 return
 
-            print "Reading %s" % filename
+            print("Reading %s" % filename)
             h = self.file_open(filename)
             if not h:
                 return
@@ -378,7 +379,7 @@ class AFCShell(Cmd):
 
 
     def do_pwd(self, p):
-        print self.curdir
+        print(self.curdir)
 
 
     def do_link(self, p):
@@ -397,7 +398,7 @@ class AFCShell(Cmd):
             self.curdir = new
             self.prompt = "AFC$ %s " % new
         else:
-            print "%s does not exist" % new
+            print("%s does not exist" % new)
 
 
     def _complete(self, text, line, begidx, endidx):
@@ -410,7 +411,7 @@ class AFCShell(Cmd):
         d = self.afc.read_directory(self.curdir + "/" + p)
         if d:
             for dd in d:
-                print dd
+                print(dd)
 
 
     def do_cat(self, p):
@@ -418,7 +419,7 @@ class AFCShell(Cmd):
         if data and p.endswith(".plist"):
             pprint(parsePlist(data))
         else:
-            print data
+            print(data)
 
 
     def do_rm(self, p):
@@ -441,7 +442,7 @@ class AFCShell(Cmd):
 
         f =  self.afc.get_file_info(path)
         if not f:
-            print "Source file does not exist.."
+            print("Source file does not exist..")
             return
 
         out_path = out + "/" + path
@@ -468,7 +469,7 @@ class AFCShell(Cmd):
         fromTo = p.split()
         if len(fromTo) != 2:
             return
-        print "from %s to %s" % (fromTo[0], fromTo[1])
+        print("from %s to %s" % (fromTo[0], fromTo[1]))
         if os.path.isdir(fromTo[0]):
             self.afc.make_directory(os.path.join(fromTo[1]))
             for x in os.listdir(fromTo[0]):
@@ -483,7 +484,7 @@ class AFCShell(Cmd):
 
 
     def do_head(self, p):
-        print self.afc.get_file_contents(self.curdir + "/" + p)[:32]
+        print(self.afc.get_file_contents(self.curdir + "/" + p)[:32])
 
 
     def do_hexdump(self, p):
@@ -502,7 +503,7 @@ class AFCShell(Cmd):
 
 
     def do_mkdir(self, p):
-        print self.afc.make_directory(p)
+        print(self.afc.make_directory(p))
 
 
     def do_rmdir(self, p):
@@ -510,7 +511,7 @@ class AFCShell(Cmd):
 
 
     def do_infos(self, p):
-        print self.afc.get_device_infos()
+        print(self.afc.get_device_infos())
 
 
     def do_mv(self, p):

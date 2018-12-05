@@ -58,11 +58,33 @@ class IDevice(object):
             paths = [os.path.join(path, name) for name in paths]
         return paths
 
-    def app_pull(self, bundle_id, srcpath, dstpath):
+    def app_isdir(self, bundle_id, path):
+        myafc = self._new_afc(bundle_id)
+        finfo = myafc.get_file_info(path)
+        if not finfo:
+            return False
+        return finfo['st_ifmt'] == 'S_IFDIR'
+
+    def app_glob_files(self, bundle_id, globpath):
+        """
+        Return:
+            list of matched paths
+        """
+        dirpath = os.path.dirname(globpath)
+        paths = self.app_listdir(bundle_id, dirpath, absolute=True)
+        return fnmatch.filter(paths, globpath)
+
+    def app_pull(self, bundle_id, srcpath, dstpath, glob=False):
         """
         Pull file or directory from device to local
         """
         myafc = self._new_afc(bundle_id)
+
+        if glob:
+            paths = self.app_glob_files(bundle_id, srcpath)
+            for p in paths:
+                self.app_pull(bundle_id, p, dstpath)
+            return
 
         finfo = myafc.get_file_info(srcpath)
         if not finfo:
@@ -97,13 +119,14 @@ class IDevice(object):
     def app_file_read_content(self, bundle_id, path):
         raise NotImplementedError()
 
-    def app_remove(self, bundle_id, path, glob=False, check=False):
+    def app_remove(self, bundle_id, path, glob=False, recursive=False, check=False):
         """
         Remove file (support glob)
 
         Args:
             bundle_id (str): of app
             glob (bool): weather to support glob
+            recursive (bool): when to recursive remove
             check (bool): enable it will raise PMDException when file not found
 
         Raises:
@@ -111,12 +134,17 @@ class IDevice(object):
         """
         c = self._new_afc(bundle_id)
         if glob:
-            dirpath = os.path.dirname(path)
-            paths = self.app_listdir(bundle_id, dirpath, absolute=True)
-            remove_paths = fnmatch.filter(paths, path)
+            remove_paths = self.app_glob_files(bundle_id, path)
             for p in remove_paths:
-                self.app_remove(bundle_id, p, check=check)
+                self.app_remove(bundle_id, p, recursive=recursive, check=check)
             return
+        if recursive:
+            if self.app_isdir(bundle_id, path):
+                paths = self.app_listdir(bundle_id, path, absolute=True)
+                for p in paths:
+                    self.app_remove(bundle_id, p, recursive=True, check=check)
+                c.remove_directory(path)
+                return
         ret = c.file_remove(path)
         if not check:
             return ret
@@ -130,7 +158,7 @@ class IDevice(object):
 
 if __name__ == '__main__':
     d = IDevice()
-    bundle_id = "com.163.itest.dm75"
+    bundle_id = "com.163.test"
     files = d.app_listdir(bundle_id, "/Documents/log", absolute=True)
     print("Files", '\n'.join(files))
 
